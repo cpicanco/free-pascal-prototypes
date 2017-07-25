@@ -90,13 +90,13 @@ begin
     '1', '2' :
       begin
         ShowMessage(RSHitMessage);
-        FReport.AddLine(RSHit);
+        FReport.WriteLine(RSHit);
         Inc(FReport.Counters.Hits);
       end
     else
       begin
         ShowMessage(RSMissMessage);
-        FReport.AddLine(RSMiss);
+        FReport.WriteLine(RSMiss);
         Inc(FReport.Counters.Misses);
       end;
   end;
@@ -107,17 +107,17 @@ procedure TSession.KeyGridResponse(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   if Sender is TKey then
-    FReport.AddLine(TKey(Sender).Caption, X, Y);
+    FReport.WriteLine(TKey(Sender).Caption, X, Y);
 
   if Sender is TKeyGrid then
-    FReport.AddLine(RSBackgroundEvent, X, Y);
+    FReport.WriteLine(RSBackgroundEvent, X, Y);
 
   WriteLn(x, ' ',y);
 end;
 
 procedure TSession.Stop;
 begin
-  FReport.AddFooter;
+  FReport.WriteFooter;
   FGrid.DestroyExampleKeys;
   ShowMessage(RSSessionEnd+FReport.Filename);
   if Assigned(OnStop) then OnStop(Self);
@@ -130,7 +130,7 @@ begin
       Inc(FCounters.Trials);
       FGrid.RandomizeKeyPositions;
       FGrid.Show;
-      FReport.AddLine(FGrid.AsString);
+      FReport.WriteLine(FGrid.AsString);
       if Assigned(OnEndTrial) then OnEndTrial(Self);
     end
   else
@@ -187,8 +187,8 @@ begin
 
   FReport.Filename := AFilename;
   FReport.StartTime:=GetTickCount64;
-  FReport.AddHeader;
-  FReport.AddLine(FGrid.AsString);
+  FReport.WriteHeader;
+  FReport.WriteLine(FGrid.AsString);
 end;
 
 end.
