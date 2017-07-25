@@ -23,14 +23,14 @@ type
   TTabDelimitedReport = class(TComponent)
   private
     FFilename : string;
+    FTextFile : TextFile;
     procedure SetFilename(AFilename: string);
   protected
-    FTextFile : TextFile;
-    procedure WriteLine(Args : array of const);
+    procedure WriteLine(Args : array of const); overload;
   public
-    procedure AddFooter; virtual;
-    procedure AddHeader; virtual;
-    procedure AddLine; virtual;
+    procedure WriteFooter; virtual;
+    procedure WriteHeader; virtual;
+    procedure WriteLine; overload; virtual; abstract;
     procedure NextFile;
     property Filename : string read FFilename write SetFilename;
   end;
@@ -41,27 +41,25 @@ resourcestring
 
 implementation
 
+uses Variants;
+
 const
   TAB = #9;
 
-procedure TTabDelimitedReport.AddFooter;
+procedure TTabDelimitedReport.WriteFooter;
 begin
   WriteLine([RSEnd, TimeToStr(Now)]);
+  CloseFile(FTextFile);
 end;
 
-procedure TTabDelimitedReport.AddHeader;
+procedure TTabDelimitedReport.WriteHeader;
 begin
   WriteLine([RSBegin, TimeToStr(Now)]);
 end;
 
-procedure TTabDelimitedReport.AddLine;
-begin
-  AbstractError;
-end;
-
 procedure TTabDelimitedReport.NextFile;
 begin
-  Filename:= FFilename;
+  SetFilename(FFilename);
 end;
 
 // About the 'array of const' argument:
@@ -76,16 +74,25 @@ begin
     begin
       // write an item of the Args array
       case Args[i].vtype of
-        vtinteger    : Write(FTextFile, Args[i].vinteger);
-        vtboolean    : Write(FTextFile, Args[i].vboolean);
-        vtchar       : Write(FTextFile, Args[i].vchar);
-        vtextended   : Write(FTextFile, Args[i].VExtended^);
-        vtString     : Write(FTextFile, Args[i].VString^);
-        vtPointer    : Write(FTextFile, LongInt(Args[i].VPointer));
-        vtPChar      : Write(FTextFile, Args[i].VPChar);
-        vtObject     : Write(FTextFile, Args[i].VObject.Classname);
-        vtClass      : Write(FTextFile, Args[i].VClass.Classname);
-        vtAnsiString : Write(FTextFile, AnsiString(Args[I].VAnsiString));
+        vtinteger       : Write(FTextFile, Args[i].VInteger);
+        vtboolean       : Write(FTextFile, Args[i].VBoolean);
+        vtchar          : Write(FTextFile, Args[i].VChar);
+        vtextended      : Write(FTextFile, Args[i].VExtended^);
+        vtString        : Write(FTextFile, Args[i].VString^);
+        vtPointer       : Write(FTextFile, Format('[0x%p]',[Args[i].VPointer]));
+        vtPChar         : Write(FTextFile, Args[i].VPChar);
+        vtObject        : Write(FTextFile, Args[i].VObject.Classname);
+        vtClass         : Write(FTextFile, Args[i].VClass.Classname);
+        vtWideChar      : Write(FTextFile, Args[i].VWideChar);
+        vtPWideChar     : Write(FTextFile, Args[i].VPWideChar^);
+        vtAnsiString    : Write(FTextFile, AnsiString(Args[I].VAnsiString));
+        vtCurrency      : Write(FTextFile, CurrToStr(Args[i].VCurrency^));
+        vtVariant       : Write(FTextFile, VarToStr(Args[i].VVariant^));
+        vtInterface     : Write(FTextFile, Format('[0x%p]',[Args[i].VInterface]));
+        vtWideString    : Write(FTextFile, WideString(Args[i].VWideString));
+        vtInt64         : Write(FTextFile, Args[i].VInt64^);
+        vtQWord         : Write(FTextFile, Args[i].VQWord^);
+        vtUnicodeString : Write(FTextFile, UnicodeString(Args[i].VUnicodeString));
       else
           Write(FTextFile, 'Unknown Type:', args[i].vtype);
       end;
