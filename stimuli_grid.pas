@@ -39,7 +39,7 @@ type
     public
       constructor Create(AOwner:TComponent); override;
       function AsString: string;
-      procedure CreateExampleKeys(AColCount, ARowCount : integer);
+      procedure CreateExampleKeys(AColCount, ARowCount: integer);
       procedure DestroyExampleKeys;
       procedure Resize; override;
       procedure RandomizeKeyPositions;
@@ -169,10 +169,8 @@ begin
     for i:= Low(FKeys[j]) to High(FKeys[j]) do
       begin
         ARowCount := Length(FKeys[i]);
-        repeat
-          rj := RandomRange(0, AColCount);
-          ri := RandomRange(0, ARowCount);
-        until (ri <> i) and (rj <> j);
+        rj := RandomRange(0, AColCount);
+        ri := RandomRange(0, ARowCount);
         LKey := FKeys[j][i];
         FKeys[j][i] := FKeys[rj][ri];
         FKeys[rj][ri] := LKey;
