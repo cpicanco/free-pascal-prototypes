@@ -7,47 +7,51 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit report_custom;
+unit report_custom;   // unit name. See: http://wiki.freepascal.org/Unit
 
-{$mode objfpc}{$H+}
+{$mode objfpc}        // compiler directive. See: https://www.freepascal.org/docs-html/prog/progse75.html#x290-306000D.4
+{$H+}                 // compiler directive. See: http://wiki.freepascal.org/String
 
-interface
+interface             // public to units that specify this unit in their uses clause
 
-uses
-  Classes, SysUtils
-  , report_abstract
-  ;
+uses                  // other units used by this unit
+  Classes, SysUtils, report_abstract;
 
-type
+type                  // Lets define some custom types
 
-  { TCounters }
-
+  {
+    TCounters - a class type implicitly inherited from TObject
+    See: http://wiki.freepascal.org/Class
+  }
   TCounters = class
-    Trials, Hits, Misses : LongInt;
+    Trials, Hits, Misses : LongInt;      // implicit public fields of the class
   end;
 
-  { TReport }
-
+  {
+    TReport - a class type inherited from TTabDelimitedReport
+  }
   TReport = class(TTabDelimitedReport)
-  private
+  private             // private fields
     FCounters: TCounters;
     FStartTime: LongWord;
-  public
+  public              // explicit public methods
     constructor Create(AOwner : TComponent); override;
     destructor Destroy; override;
-    procedure AddHeader; override;
-    procedure AddFooter; override;
-    procedure AddLine(AEvent : string; AX: integer = -1; AY : integer = -1); reintroduce;
+    procedure WriteFooter; override;
+    procedure WriteHeader; override;
+    procedure WriteLine(AEvent : string; AX: integer = -1; AY : integer = -1); reintroduce;
     property Counters : TCounters read FCounters write FCounters;
     property StartTime : LongWord read FStartTime write FStartTime;
   end;
 
+{ resource strings are used to centralize text
+  to be displayed and that may be translated }
 resourcestring
-  // Target Values
+  // values of the report
   RSHit = 'ACERTO';
   RSMiss = 'ERRO';
 
-  // header
+  // header, column names of the report
   RSTrial = 'Tentativa';
   RSEvent = 'Evento';
   RSMouseX = 'MouseX';
@@ -59,9 +63,6 @@ resourcestring
   RSMisses = 'Erros:';
 
 implementation
-
-const
-  TAB = #9;
 
 { TReport }
 
@@ -77,31 +78,25 @@ begin
   inherited Destroy;
 end;
 
-procedure TReport.AddHeader;
+procedure TReport.WriteFooter;
 begin
-  inherited AddHeader;
+  WriteLine([RSHits, FCounters.Hits]);
+  WriteLine([RSMisses, FCounters.Misses]);
+  inherited WriteFooter;
+end;
+
+procedure TReport.WriteHeader;
+begin
+  inherited WriteHeader;
   WriteLine([RSTime, RSTrial, RSEvent, RSMouseX, RSMouseY]);
 end;
 
-procedure TReport.AddFooter;
+procedure TReport.WriteLine(AEvent: string; AX: integer; AY: integer);
 begin
-  inherited AddFooter;
-  WriteLine([RSHits, FCounters.Hits]);
-  WriteLine([RSMisses, FCounters.Misses]);
-  CloseFile(FTextFile);
-end;
-
-procedure TReport.AddLine(AEvent: string; AX: integer; AY: integer);
-var
-  LTime: LongInt;
-  LTrial : LongInt;
-begin
-  LTime := GetTickCount64-FStartTime;
-  LTrial := FCounters.Trials+1;
   if (AX = -1) and (AY = -1) then
-    WriteLine([LTime, LTrial, AEvent, 'NA', 'NA'])
+    WriteLine([GetTickCount64-FStartTime, FCounters.Trials+1, AEvent, 'NA', 'NA'])
   else
-    WriteLine([LTime, LTrial, AEvent, AX, AY]);
+    WriteLine([GetTickCount64-FStartTime, FCounters.Trials+1, AEvent, AX, AY]);
 end;
 
 end.
