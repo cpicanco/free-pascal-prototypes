@@ -91,13 +91,13 @@ begin
       begin
         ShowMessage(RSHitMessage);
         FReport.WriteLine(RSHit);
-        Inc(FReport.Counters.Hits);
+        Inc(FCounters.Hits);
       end
     else
       begin
         ShowMessage(RSMissMessage);
         FReport.WriteLine(RSMiss);
-        Inc(FReport.Counters.Misses);
+        Inc(FCounters.Misses);
       end;
   end;
   FInterTrialInterval.Enabled := True;
@@ -111,8 +111,6 @@ begin
 
   if Sender is TKeyGrid then
     FReport.WriteLine(RSBackgroundEvent, X, Y);
-
-  WriteLn(x, ' ',y);
 end;
 
 procedure TSession.Stop;

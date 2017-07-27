@@ -55,7 +55,7 @@ implementation
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   WindowState:=wsFullScreen;
-  FReportFilename := ExtractFilePath(Application.ExeName) + '000.txt';
+  FReportFilename := ExtractFilePath(Application.ExeName) + 'Data_000.txt';
   FSession := TSession.Create(Self);
   FSession.OnStop:=@SessionStop;
 end;

@@ -30,7 +30,7 @@ type                  // Lets define some custom types
   {
     TReport - a class type inherited from TTabDelimitedReport
   }
-  TReport = class(TTabDelimitedReport)
+  TReport = class sealed (TTabDelimitedReport)
   private             // private fields
     FCounters: TCounters;
     FStartTime: LongWord;
@@ -39,7 +39,7 @@ type                  // Lets define some custom types
     destructor Destroy; override;
     procedure WriteFooter; override;
     procedure WriteHeader; override;
-    procedure WriteLine(AEvent : string; AX: integer = -1; AY : integer = -1); reintroduce;
+    procedure WriteLine(AEvent : string; AX: integer = -1; AY : integer = -1); overload;
     property Counters : TCounters read FCounters write FCounters;
     property StartTime : LongWord read FStartTime write FStartTime;
   end;
@@ -80,23 +80,30 @@ end;
 
 procedure TReport.WriteFooter;
 begin
-  WriteLine([RSHits, FCounters.Hits]);
-  WriteLine([RSMisses, FCounters.Misses]);
-  inherited WriteFooter;
+  WriteLine([RSEnd, TimeToStr(Now)]);
+  WriteLine([RSHits, IntToStr(FCounters.Hits)]);
+  WriteLine([RSMisses, IntToStr(FCounters.Misses)]);
+  CloseFile;
 end;
 
 procedure TReport.WriteHeader;
 begin
-  inherited WriteHeader;
+  WriteLine([RSBegin, TimeToStr(Now)]);
   WriteLine([RSTime, RSTrial, RSEvent, RSMouseX, RSMouseY]);
 end;
 
 procedure TReport.WriteLine(AEvent: string; AX: integer; AY: integer);
+var
+  LX : string = 'NA';
+  LY : string = 'NA';
+  LTime : string = '';
+  LTrial : string = '';
 begin
-  if (AX = -1) and (AY = -1) then
-    WriteLine([GetTickCount64-FStartTime, FCounters.Trials+1, AEvent, 'NA', 'NA'])
-  else
-    WriteLine([GetTickCount64-FStartTime, FCounters.Trials+1, AEvent, AX, AY]);
+  if AX = -1 then { do nothing } else WriteStr(LX, AX);
+  if AY = -1 then { do nothing } else WriteStr(LX, AY);
+  WriteStr(LTime, GetTickCount64-FStartTime);
+  WriteStr(LTrial, FCounters.Trials+1);
+  WriteLine([LTime, LTrial, AEvent, LX, LY]);
 end;
 
 end.

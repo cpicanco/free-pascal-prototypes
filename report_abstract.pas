@@ -26,11 +26,11 @@ type
     FTextFile : TextFile;
     procedure SetFilename(AFilename: string);
   protected
-    procedure WriteLine(Args : array of const); overload;
+    procedure CloseFile;
+    procedure WriteLine(Args : array of string);
   public
-    procedure WriteFooter; virtual;
-    procedure WriteHeader; virtual;
-    procedure WriteLine; overload; virtual; abstract;
+    procedure WriteFooter; virtual; abstract;
+    procedure WriteHeader; virtual; abstract;
     procedure NextFile;
     property Filename : string read FFilename write SetFilename;
   end;
@@ -41,30 +41,24 @@ resourcestring
 
 implementation
 
-uses Variants;
+uses character;
 
 const
   TAB = #9;
-
-procedure TTabDelimitedReport.WriteFooter;
-begin
-  WriteLine([RSEnd, TimeToStr(Now)]);
-  CloseFile(FTextFile);
-end;
-
-procedure TTabDelimitedReport.WriteHeader;
-begin
-  WriteLine([RSBegin, TimeToStr(Now)]);
-end;
 
 procedure TTabDelimitedReport.NextFile;
 begin
   SetFilename(FFilename);
 end;
 
+procedure TTabDelimitedReport.CloseFile;
+begin
+  System.Close(FTextFile);
+end;
+
 // About the 'array of const' argument:
 // https://www.freepascal.org/docs-html/ref/refsu69.html
-procedure TTabDelimitedReport.WriteLine(Args: array of const);
+procedure TTabDelimitedReport.WriteLine(Args: array of string);
 var
   i : LongInt;
   LLastArg : LongInt;
@@ -73,51 +67,34 @@ begin
   for i := 0 to LLastArg do
     begin
       // write an item of the Args array
-      case Args[i].vtype of
-        vtinteger       : Write(FTextFile, Args[i].VInteger);
-        vtboolean       : Write(FTextFile, Args[i].VBoolean);
-        vtchar          : Write(FTextFile, Args[i].VChar);
-        vtextended      : Write(FTextFile, Args[i].VExtended^);
-        vtString        : Write(FTextFile, Args[i].VString^);
-        vtPointer       : Write(FTextFile, Format('[0x%p]',[Args[i].VPointer]));
-        vtPChar         : Write(FTextFile, Args[i].VPChar);
-        vtObject        : Write(FTextFile, Args[i].VObject.Classname);
-        vtClass         : Write(FTextFile, Args[i].VClass.Classname);
-        vtWideChar      : Write(FTextFile, Args[i].VWideChar);
-        vtPWideChar     : Write(FTextFile, Args[i].VPWideChar^);
-        vtAnsiString    : Write(FTextFile, AnsiString(Args[I].VAnsiString));
-        vtCurrency      : Write(FTextFile, CurrToStr(Args[i].VCurrency^));
-        vtVariant       : Write(FTextFile, VarToStr(Args[i].VVariant^));
-        vtInterface     : Write(FTextFile, Format('[0x%p]',[Args[i].VInterface]));
-        vtWideString    : Write(FTextFile, WideString(Args[i].VWideString));
-        vtInt64         : Write(FTextFile, Args[i].VInt64^);
-        vtQWord         : Write(FTextFile, Args[i].VQWord^);
-        vtUnicodeString : Write(FTextFile, UnicodeString(Args[i].VUnicodeString));
-      else
-          Write(FTextFile, 'Unknown Type:', args[i].vtype);
-      end;
+      Write(FTextFile, Args[i]);
 
       // then write a tab charater or LineEnding
-      if i < LLastArg then
-        Write(FTextFile, TAB)
-      else
-        Write(FTextFile, LineEnding);
+      if i < LLastArg then Write(FTextFile, TAB) else Write(FTextFile, LineEnding);
     end;
 end;
 
 procedure TTabDelimitedReport.SetFilename(AFilename: string);
 var
-  LFilePath, LExtension: RawByteString;
+  LFilePath, LExtension, LBasename: string;
+  LChar : char;
   i : Integer;
 begin
-  // never override an exinting file
   LFilePath := ExtractFilePath(AFilename);
   LExtension := ExtractFileExt(AFilename);
+  LBasename := ExtractFileName(AFilename);
+  LBasename:= LBasename[1..High(LBasename)-4];
+
+  // remove numbers from filename
+  for LChar in LBasename do
+    if IsNumber(LChar) then Delete(LBasename, Pos(LChar, LBasename), 1);
+
+  // never override an existing file
   i := 0;
   while FileExists(AFilename) do
     begin
       Inc(i);
-      AFilename := LFilePath + StringOfChar(#48, 3 - Length(IntToStr(i))) + IntToStr(i) + LExtension;
+      AFilename := LFilePath + LBasename + Format('%.3d', [i]) + LExtension;
     end;
 
   // assign a name to the file

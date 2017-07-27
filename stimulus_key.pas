@@ -22,11 +22,11 @@ type
   TKey = class(TGraphicControl)
   private
     FBitmap: TBitmap;
-    FOnConsequence: TNotifyEvent;
-    FOnResponse: TMouseEvent;
-    procedure Consequence(Sender: TObject);
     procedure KeyMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+  private
+    FOnConsequence: TNotifyEvent;
+    FOnResponse: TMouseEvent;
     procedure SetOnConsequence(AValue: TNotifyEvent);
     procedure SetOnResponse(AValue: TMouseEvent);
   public
@@ -34,10 +34,10 @@ type
     destructor Destroy; override;
     procedure LoadFromFile(AFilename: string);
     procedure Paint; override;
-    property OnConsequence: TNotifyEvent read FOnConsequence write SetOnConsequence;
-    property OnResponse: TMouseEvent read FOnResponse write SetOnResponse;
   public
     property Caption;
+    property OnConsequence: TNotifyEvent read FOnConsequence write SetOnConsequence;
+    property OnResponse: TMouseEvent read FOnResponse write SetOnResponse;
     property OnMouseDown;
   end;
 
@@ -130,7 +130,7 @@ begin
     OnResponse(Sender,Button, Shift, X + Left, Y + Top);
 
   if Button = mbLeft then
-    Consequence(Sender);
+    if Assigned(OnConsequence) then OnConsequence(Self);
 end;
 
 procedure TKey.SetOnConsequence(AValue: TNotifyEvent);
@@ -145,10 +145,6 @@ begin
   FOnResponse:=AValue;
 end;
 
-procedure TKey.Consequence(Sender: TObject);
-begin
-  if Assigned(OnConsequence) then OnConsequence(Self);
-end;
 
 end.
 

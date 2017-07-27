@@ -36,12 +36,13 @@ type
       FOnKeyResponse: TMouseEvent;
       procedure SetOnKeyConsequence(AValue: TNotifyEvent);
       procedure SetOnKeyResponse(AValue: TMouseEvent);
+    protected
+      procedure Resize; override;
     public
       constructor Create(AOwner:TComponent); override;
       function AsString: string;
       procedure CreateExampleKeys(AColCount, ARowCount: integer);
       procedure DestroyExampleKeys;
-      procedure Resize; override;
       procedure RandomizeKeyPositions;
     public
       property OnConsequence : TNotifyEvent read FOnKeyConsequence write SetOnKeyConsequence;
