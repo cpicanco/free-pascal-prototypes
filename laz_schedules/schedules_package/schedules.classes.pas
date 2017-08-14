@@ -18,6 +18,16 @@ uses Schedules.Abstract;
 
 type
 
+  { TUnknownSchedule }
+
+  TUnknownSchedule = class sealed (TSchedules)
+  protected
+    function GetParameter1: Cardinal; override;
+    function GetParameter2: Cardinal; override;
+    procedure SetParameter1(AValue: Cardinal); override;
+    procedure SetParameter2(AValue: Cardinal); override;
+  end;
+
   { TRatioSchedule }
 
   // Allow fixed and pseudo-random ratios.
@@ -35,6 +45,7 @@ type
     constructor Create; override;
     procedure DoResponse; override;
     procedure Reset; override;
+    procedure Start; override;
   end;
 
   { TIntervalSchedule }
@@ -115,6 +126,28 @@ type
 
 implementation
 
+{ TUnknownSchedule }
+
+function TUnknownSchedule.GetParameter1: Cardinal;
+begin
+  Result := 0;
+end;
+
+function TUnknownSchedule.GetParameter2: Cardinal;
+begin
+  Result := 0;
+end;
+
+procedure TUnknownSchedule.SetParameter1(AValue: Cardinal);
+begin
+  { do nothing }
+end;
+
+procedure TUnknownSchedule.SetParameter2(AValue: Cardinal);
+begin
+  { do nothing }
+end;
+
 { TRatioSchedule }
 
 function TRatioSchedule.GetParameter1: Cardinal;
@@ -156,6 +189,11 @@ procedure TRatioSchedule.Reset;
 begin
   ResetResponses;
   UpdateRatio(FCurrentRatio,FBaseResponseRatio,FRatioVariation);
+end;
+
+procedure TRatioSchedule.Start;
+begin
+  Reset;
 end;
 
 { TIntervalSchedule }

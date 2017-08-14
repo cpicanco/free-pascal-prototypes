@@ -1,20 +1,29 @@
 object Form1: TForm1
-  Left = 452
-  Height = 240
-  Top = 185
-  Width = 320
+  Left = 333
+  Height = 302
+  Top = 211
+  Width = 585
   Caption = 'Form1'
-  ClientHeight = 240
-  ClientWidth = 320
+  ClientHeight = 302
+  ClientWidth = 585
   OnCreate = FormCreate
   LCLVersion = '1.8.0.4'
-  object Button1: TButton
-    Left = 120
-    Height = 25
-    Top = 96
-    Width = 75
-    Caption = 'Button1'
-    OnClick = Button1Click
+  object PanelOperandum: TPanel
+    Left = 176
+    Height = 146
+    Top = 88
+    Width = 206
+    Caption = 'PanelOperandum'
     TabOrder = 0
+    OnClick = PanelOperandumClick
+  end
+  object ScheduleVR: TSchedule
+    ScheduleName = VR
+    OnConsequence = ConsequenceEvent
+    OnResponse = ResponseEvent
+    Parameter1 = 5
+    Parameter2 = 3
+    left = 120
+    top = 88
   end
 end

@@ -57,9 +57,10 @@ type
     procedure Start; virtual;
     property OnConsequence : TNotifyEvent read FOnConsequence write FOnConsequence;
     property OnResponse : TNotifyEvent read FOnResponse write FOnResponse;
+    property Responses : Cardinal read FResponseCounter;
+  published
     property Parameter1 : Cardinal read GetParameter1 write SetParameter1;
     property Parameter2 : Cardinal read GetParameter2 write SetParameter2;
-    property Responses : Cardinal read FResponseCounter;
   end;
 
 resourcestring
@@ -69,6 +70,7 @@ resourcestring
   RSErrorInvalidValue = 'Value must be higher than zero.';
   RSErrorInvalidVariation = 'Variation must be lower than value.';
   RSErrorParameterDoesNotExist = 'Requested parameter does not exist.';
+  RSErrorUnknownScheduleAction = 'Unknow schedule. Load a schedule first.';
 
 implementation
 
@@ -158,6 +160,7 @@ end;
 
 procedure TSchedules.Start;
 begin
+  Reset;
   if Assigned(FTimer) then
     StartClock;
 end;

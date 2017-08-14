@@ -31,23 +31,6 @@ type
     DRH  // Differential reinforcement of high rates
   );
 
-//type
-//  TScheduleParameters = record
-//  case ScheduleName : TScheduleName of
-//    UnknownSchedule,
-//    EXT, CRF : ();
-//          FR : (FixedRatio : Cardinal);
-//          FI : (FixedInterval : Cardinal);
-//          FT : (FixedTime : Cardinal);
-//          VR : (BaseRatio, RatioVariation : Cardinal);
-//          VI : (BaseInterval, IntervalVariation : Cardinal);
-//          VT : (BaseTime, TimeVariation : Cardinal);
-//    DRL, DRH : (Ratio, Interval : Cardinal);
-//  end;
-//
-//  operator=(A, B : TScheduleParameters) : Boolean;
-//
-// type
 
   { TSchedule }
 
@@ -55,37 +38,33 @@ type
   private
     FName : TScheduleName;
     FSchedule: TSchedules;
-    FScheduleLoaded: Boolean;
-    //FParameters : TScheduleParameters;
-    procedure Consequence(Sender: TObject);
-    procedure DestroySchedule;
     function GetLoaded: Boolean;
-    function GetOnConsequence: TNotifyEvent;
-    function GetOnResponse: TNotifyEvent;
     function GetParameter(i : integer): Cardinal;
-    //function GetParameters: TScheduleParameters;
     function GetParametersAsString: string; overload;
     function GetParameters(ASchedule: string): string; overload;
     function GetScheduleName: TScheduleName;
     function GetScheduleString: string;
     function GetScheduleNameAsString: string; overload;
     function GetScheduleName(ASchedule: string): string; overload;
-    procedure Response(Sender: TObject);
+    procedure LoadScheduleName(AScheduleName : TScheduleName); overload;
+    procedure SetScheduleName(AName : string); overload;
     procedure SetOnConsequence(AValue: TNotifyEvent);
     procedure SetOnResponse(AValue: TNotifyEvent);
     procedure SetParameter(i : integer; AValue: Cardinal);
     procedure SetParameters(ASchedule: string); overload;
-    //procedure SetParameters(AValue: TScheduleParameters); overload;
-    procedure SetParameters(AParameter1, AParameter2 : Cardinal); overload;
-    procedure CreateSchedule(AScheduleName : TScheduleName); overload;
-    procedure CreateSchedule(AName : string); overload;
-    procedure SetParametersAsString(AValue: string);
-    procedure SetScheduleName(AScheduleName: TScheduleName);
-    procedure SetScheduleNameAsString(AValue: string);
-    procedure DefineProperties(Filer: TFiler); override;
-    procedure ReadParameters(Reader: TReader);
-    procedure WriteParameters(Writer: TWriter);
+    procedure SetParameters(AParameter1, AParameter2 : Cardinal); overload; inline;
+  private
+    FOnConsequence: TNotifyEvent;
+    FOnResponse: TNotifyEvent;
+    function GetParameter1: Cardinal;
+    function GetParameter2: Cardinal;
+    procedure Response(Sender : TObject);
+    procedure Consequence(Sender : TObject);
+    procedure SetParameter1(AValue: Cardinal);
+    procedure SetParameter2(AValue: Cardinal);
+    procedure SetScheduleName(AValue: TScheduleName);
   public
+    constructor Create(AOwner : TComponent); override; overload;
     constructor Create(AOwner : TComponent; ASchedule : string); overload;
     constructor Create(AOwner : TComponent; AScheduleName : TScheduleName;
       AParameter1: Cardinal = 0; AParameter2: Cardinal = 0); overload;
@@ -97,80 +76,46 @@ type
     procedure Start;
     property AsString : string read GetScheduleString write Load;
     property Loaded : Boolean read GetLoaded;
-    property ScheduleNameAsString : string read GetScheduleNameAsString write SetScheduleNameAsString;
+    property ScheduleNameAsString : string read GetScheduleNameAsString;
     property Parameter[i : integer] : Cardinal read GetParameter write SetParameter;
-    //property Parameters : TScheduleParameters read GetParameters write SetParameters;
-    property ParametersAsString : string read GetParametersAsString write SetParametersAsString;
+    property ParametersAsString : string read GetParametersAsString;
   published
-    property Schedule : TScheduleName read GetScheduleName write SetScheduleName;
-    property OnConsequence: TNotifyEvent read GetOnConsequence write SetOnConsequence;
-    property OnResponse: TNotifyEvent read GetOnResponse write SetOnResponse;
+    property ScheduleName : TScheduleName read GetScheduleName write SetScheduleName;
+    property OnConsequence: TNotifyEvent read FOnConsequence write SetOnConsequence;
+    property OnResponse: TNotifyEvent read FOnResponse write SetOnResponse;
+    property Parameter1: Cardinal read GetParameter1 write SetParameter1;
+    property Parameter2: Cardinal read GetParameter2 write SetParameter2;
   end;
 
 implementation
 
 uses SysUtils, StrUtils, Schedules.Classes;
-//
-//operator=(A, B: TScheduleParameters) : Boolean;
-//begin
-//  Result := A.ScheduleName = B.ScheduleName;
-//  if not Result then Exit;
-//  case A.ScheduleName of
-//    UnknownSchedule,
-//    EXT, CRF: Exit;
-//          FR: Result := A.FixedRatio = B.FixedRatio;
-//          FI: Result := A.FixedInterval = B.FixedInterval;
-//          FT: Result := A.FixedTime = B.FixedTime;
-//          VR:
-//            begin
-//              Result := A.BaseRatio = B.BaseRatio;
-//              Result := A.RatioVariation = B.RatioVariation;
-//            end;
-//          VI:
-//            begin
-//              Result := A.BaseInterval = B.BaseInterval;
-//              Result := A.IntervalVariation = B.IntervalVariation;
-//            end;
-//          VT:
-//            begin
-//              Result := A.BaseTime = B.BaseTime;
-//              Result := A.TimeVariation = B.TimeVariation;
-//            end;
-//    DRL, DRH:
-//            begin
-//              Result := A.Ratio = A.Ratio;
-//              Result := B.Interval = B.Interval;
-//            end;
-//  end;
-//end;
 
-procedure TSchedule.CreateSchedule(AScheduleName: TScheduleName);
+
+procedure TSchedule.LoadScheduleName(AScheduleName: TScheduleName);
 begin
   if FName = AScheduleName then Exit;
-  if Assigned(FSchedule) then DestroySchedule;
+  if Assigned(FSchedule) then FreeAndNil(FSchedule);
   case AScheduleName of
     EXT, CRF, FR, VR : FSchedule := TRatioSchedule.Create;
               FI, VI : FSchedule := TIntervalSchedule.Create;
               FT, VT : FSchedule := TTimeSchedule.Create;
                  DRL : FSchedule := TDRLSchedule.Create;
                  DRH : FSchedule := TDRHSchedule.Create;
-    UnknownSchedule  :
-      raise Exception.Create(RSErrorCreatingUnknownSchedule) at
-        get_caller_addr(get_frame),
-        get_caller_frame(get_frame);
+    UnknownSchedule  : FSchedule := TUnknownSchedule.Create;
   end;
   FName := AScheduleName;
-  FSchedule.OnConsequence := @Consequence;
-  FSchedule.OnResponse := @Response;
+  FSchedule.OnConsequence:=@Consequence;
+  FSchedule.OnResponse:=@Response;
 end;
 
-procedure TSchedule.CreateSchedule(AName: string);
+procedure TSchedule.SetScheduleName(AName: string);
 var
   LScheduleName : TScheduleName;
   LName : string;
   ValidScheduleNameFound : Boolean = False;
 begin
-  for LScheduleName := Succ(Low(TScheduleName)) to High(TScheduleName) do
+  for LScheduleName := Low(TScheduleName) to High(TScheduleName) do
     begin
       WriteStr(LName,LScheduleName);
       if LName = GetScheduleName(AName) then
@@ -180,125 +125,64 @@ begin
         end;
     end;
   if ValidScheduleNameFound then
-      CreateSchedule(LScheduleName)
+      LoadScheduleName(LScheduleName)
   else
     raise Exception.Create(RSErrorCreatingUnknownSchedule) at
       get_caller_addr(get_frame),
       get_caller_frame(get_frame);
 end;
 
-procedure TSchedule.SetParametersAsString(AValue: string);
+procedure TSchedule.SetParameter1(AValue: Cardinal);
 begin
-
+  if Parameter[0] = AValue then Exit;
+  Parameter[0] := AValue;
 end;
 
-procedure TSchedule.SetScheduleName(AScheduleName: TScheduleName);
+procedure TSchedule.SetParameter2(AValue: Cardinal);
 begin
-  CreateSchedule(AScheduleName);
+  if Parameter[1] = AValue then Exit;
+  Parameter[1] := AValue;
 end;
 
-procedure TSchedule.SetScheduleNameAsString(AValue: string);
+procedure TSchedule.SetScheduleName(AValue: TScheduleName);
 begin
-  CreateSchedule(AValue);
+  LoadScheduleName(AValue);
+  case FName of
+    CRF, EXT: SetParameters(0, 0);
+    FR : SetParameters(5, 0);
+    FI, FT: SetParameters(5000, 0);
+    VR : SetParameters(5, 3);
+    VI, VT: SetParameters(5000, 2500);
+    DRH: SetParameters(5, 4000);
+    DRL: SetParameters(1, 4000);
+  end;
 end;
 
-procedure TSchedule.DefineProperties(Filer: TFiler);
+procedure TSchedule.Response(Sender: TObject);
 begin
-  inherited DefineProperties(Filer);
+  if Assigned(OnResponse) then OnResponse(Self);
 end;
 
-procedure TSchedule.ReadParameters(Reader: TReader);
-var
-  LP1, LP2 : Cardinal;
+function TSchedule.GetParameter1: Cardinal;
 begin
-  with Reader do
-    case FName of
-      FR, FI, FT:
-        begin
-          LP1 := FSchedule.Parameter1;
-          ReadListBegin;
-          FSchedule.Parameter1 := ReadInteger;
-          if FSchedule.Parameter1 > 0 then
-            { do nothing }
-          else
-            FSchedule.Parameter1 := LP1;
-          ReadListEnd;
-        end;
-
-      VR, VI, VT:
-        begin
-          LP1 := FSchedule.Parameter1;
-          LP2 := FSchedule.Parameter2;
-          ReadListBegin;
-          FSchedule.Parameter1 := ReadInteger;
-          if FSchedule.Parameter1 > 0 then
-            begin
-              FSchedule.Parameter2 := ReadInteger;
-              if FSchedule.Parameter2 < FSchedule.Parameter1 then
-                { do nothing }
-              else
-                FSchedule.Parameter2 := LP2;
-            end
-          else
-            FSchedule.Parameter1 := LP1;
-          ReadListEnd;
-        end;
-
-      DRH, DRL:
-        begin
-          LP1 := FSchedule.Parameter1;
-          LP2 := FSchedule.Parameter2;
-          ReadListBegin;
-          FSchedule.Parameter1 := ReadInteger;
-          FSchedule.Parameter2 := ReadInteger;
-          if (FSchedule.Parameter1 > 0) and (FSchedule.Parameter2 > 0) then
-            { do nothing }
-          else
-            begin
-              FSchedule.Parameter1 := LP1;
-              FSchedule.Parameter2 := LP2;
-            end;
-          ReadListEnd;
-        end;
-    end;
+  Result := Parameter[0];
 end;
 
-procedure TSchedule.WriteParameters(Writer: TWriter);
+function TSchedule.GetParameter2: Cardinal;
 begin
-  with Writer do
-    case FName of
-      FR, FI, FT:
-        begin
-          WriteListBegin;
-          if FSchedule.Parameter1 > 0 then
-            WriteInteger(FSchedule.Parameter1);;
-          WriteListEnd;
-        end;
+  Result := Parameter[1];
+end;
 
-      VR, VI, VT:
-        begin
-          WriteListBegin;
-          if FSchedule.Parameter1 > 0 then
-            begin
-              WriteInteger(FSchedule.Parameter1);
-              if FSchedule.Parameter2 < FSchedule.Parameter1 then
-                WriteInteger(FSchedule.Parameter2);
+procedure TSchedule.Consequence(Sender: TObject);
+begin
+  if Assigned(OnConsequence) then OnConsequence(Self);
+end;
 
-            end;
-          WriteListEnd;
-        end;
-
-      DRH, DRL:
-        begin
-          WriteListBegin;
-          if (FSchedule.Parameter1 > 0) and (FSchedule.Parameter2 > 0) then
-            begin
-              WriteInteger(FSchedule.Parameter1);
-              WriteInteger(FSchedule.Parameter2);
-            end;
-          WriteListEnd;
-        end;
-    end;
+constructor TSchedule.Create(AOwner: TComponent);
+begin
+  Inherited;
+  FSchedule := TUnknownSchedule.Create;
+  FName := UnknownSchedule;
 end;
 
 procedure TSchedule.SetParameters(AParameter1, AParameter2: Cardinal);
@@ -365,41 +249,28 @@ begin
 end;
 
 procedure TSchedule.SetParameter(i : integer; AValue: Cardinal);
+var
+  LExceptionMessage : String;
 begin
   case i of
     0 : if FSchedule.Parameter1 = AValue then Exit;
     1 : if FSchedule.Parameter2 = AValue then Exit;
   end;
   case FName of
-    EXT, CRF: { do nothing };
+    UnknownSchedule: SetParameters(0,0);
+    EXT, CRF: SetParameters(FSchedule.Parameter1,FSchedule.Parameter2);
     FR, FI, FT:
-    case i of
-      0 :
-        begin
-          SetParameters(AValue, FSchedule.Parameter2);
-          Exit;
-        end;
-      1 : { do nothing };
-    end;
-
-    VR, VI, VT, DRH, DRL:
-      begin
-        case i of
-          0 : SetParameters(AValue,FSchedule.Parameter2);
-          1 : SetParameters(FSchedule.Parameter1,AValue);
-        end;
-        Exit;
+      case i of
+        0 : SetParameters(AValue, FSchedule.Parameter2);
+        1 : Exit;
       end;
 
-    UnknownSchedule:
-       raise Exception.Create(RSErrorGettingUnknownScheduleParameters) at
-          get_caller_addr(get_frame),
-          get_caller_frame(get_frame);
+    VR, VI, VT, DRH, DRL:
+      case i of
+        0 : SetParameters(AValue,FSchedule.Parameter2);
+        1 : SetParameters(FSchedule.Parameter1,AValue);
+      end;
   end;
-
-  raise Exception.Create(RSErrorParameterDoesNotExist) at
-     get_caller_addr(get_frame),
-     get_caller_frame(get_frame);
 end;
 
 procedure TSchedule.SetParameters(ASchedule: string);
@@ -409,27 +280,10 @@ begin
                 StrToIntDef(ExtractDelimited(3,ASchedule,[#32]), 0));
 end;
 
-//procedure TSchedule.SetParameters(AValue: TScheduleParameters);
-//begin
-//  if FParameters = AValue then Exit;
-//  FParameters := AValue;
-//  case FParameters.ScheduleName of
-//    UnknownSchedule,
-//    EXT, CRF : { do nothing };
-//    FR: SetParameters(FParameters.FixedRatio, 0);
-//    FI: SetParameters(FParameters.FixedInterval, 0);
-//    FT: SetParameters(FParameters.FixedTime, 0);
-//    VR: SetParameters(FParameters.BaseRatio, FParameters.RatioVariation);
-//    VI: SetParameters(FParameters.BaseInterval, FParameters.IntervalVariation);
-//    VT: SetParameters(FParameters.BaseTime, FParameters.TimeVariation);
-//    DRL, DRH: SetParameters(FParameters.Ratio, FParameters.Interval);
-//  end;
-//end;
-
 constructor TSchedule.Create(AOwner: TComponent; ASchedule: string);
 begin
   inherited Create(AOwner);
-  CreateSchedule(ASchedule);
+  SetScheduleName(ASchedule);
 end;
 
 constructor TSchedule.Create(AOwner: TComponent; AScheduleName: TScheduleName;
@@ -441,21 +295,9 @@ end;
 
 destructor TSchedule.Destroy;
 begin
-  if Assigned(FSchedule) then;
-    FSchedule.Free;
+  if Assigned(FSchedule) then
+    FreeAndNil(FSchedule);
   inherited Destroy;
-end;
-
-procedure TSchedule.Consequence(Sender: TObject);
-begin
-  if Assigned(OnConsequence) then OnConsequence(Self);
-end;
-
-procedure TSchedule.DestroySchedule;
-begin
-  FSchedule.OnConsequence := nil;
-  FSchedule.OnResponse := nil;
-  FreeAndNil(FSchedule);
 end;
 
 function TSchedule.GetLoaded: Boolean;
@@ -463,54 +305,13 @@ begin
   Result := FName <> UnknownSchedule;
 end;
 
-function TSchedule.GetOnConsequence: TNotifyEvent;
-begin
-  Result := FSchedule.OnConsequence;
-end;
-
-function TSchedule.GetOnResponse: TNotifyEvent;
-begin
-  Result := FSchedule.OnResponse;
-end;
-
 function TSchedule.GetParameter(i : integer): Cardinal;
 begin
-  case FName of
-    EXT, CRF: { do nothing };
-    FR, FI, FT:
-    case i of
-      0 :
-        begin
-          Result := FSchedule.Parameter1;
-          Exit;
-        end;
-      1 : { do nothing };
-    end;
-
-    VR, VI, VT, DRH, DRL:
-      begin
-        case i of
-          0 : Result := FSchedule.Parameter1;
-          1 : Result := FSchedule.Parameter2;
-        end;
-        Exit;
-      end;
-
-    UnknownSchedule:
-       raise Exception.Create(RSErrorGettingUnknownScheduleParameters) at
-          get_caller_addr(get_frame),
-          get_caller_frame(get_frame);
+  case i of
+    0 : Result := FSchedule.Parameter1;
+    1 : Result := FSchedule.Parameter2;
   end;
-
-  raise Exception.Create(RSErrorParameterDoesNotExist) at
-     get_caller_addr(get_frame),
-     get_caller_frame(get_frame);
 end;
-
-//function TSchedule.GetParameters: TScheduleParameters;
-//begin
-//  Result := FParameters;
-//end;
 
 function TSchedule.GetParametersAsString: string;
 begin
@@ -556,46 +357,48 @@ begin
   Result := ExtractDelimited(1, ASchedule, [#32]);
 end;
 
-procedure TSchedule.Response(Sender: TObject);
-begin
-  if Assigned(OnResponse) then OnResponse(Self);
-end;
-
 procedure TSchedule.SetOnConsequence(AValue: TNotifyEvent);
 begin
-  FSchedule.OnConsequence:=AValue;
+  if FOnConsequence = AValue then Exit;
+  FOnConsequence:=AValue;
 end;
 
 procedure TSchedule.SetOnResponse(AValue: TNotifyEvent);
 begin
-  FSchedule.OnResponse:=AValue;
+  if FOnResponse = AValue then Exit;
+  FOnResponse:=AValue;
 end;
-
 
 procedure TSchedule.DoResponse;
 begin
-  if FScheduleLoaded then
+  if FName = UnknownSchedule then
+     raise Exception.Create(RSErrorUnknownScheduleAction) at
+        get_caller_addr(get_frame),
+        get_caller_frame(get_frame)
+  else
     FSchedule.DoResponse;
 end;
 
 procedure TSchedule.Load(ASchedule: string);
 begin
-  CreateSchedule(GetScheduleName(ASchedule));
+  SetScheduleName(GetScheduleName(ASchedule));
   SetParameters(ASchedule);
 end;
 procedure TSchedule.Load(AScheduleName: TScheduleName; AParameter1: Cardinal;
   AParameter2: Cardinal);
 begin
-  CreateSchedule(AScheduleName);
+  LoadScheduleName(AScheduleName);
   SetParameters(AParameter1, AParameter2);
 end;
 procedure TSchedule.Start;
 begin
-  if FScheduleLoaded then
+  if FName = UnknownSchedule then
+     raise Exception.Create(RSErrorUnknownScheduleAction) at
+        get_caller_addr(get_frame),
+        get_caller_frame(get_frame)
+  else
     FSchedule.Start;
 end;
-
-
 
 end.
 
