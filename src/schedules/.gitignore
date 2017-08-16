@@ -5,4 +5,4 @@ backup/*
 *.ico
 *.res
 *.lps
-schedules_package.pas
+schedules_component.pas
