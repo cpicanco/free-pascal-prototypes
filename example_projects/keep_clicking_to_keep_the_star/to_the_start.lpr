@@ -1,4 +1,4 @@
-program project1;
+program to_the_start;
 
 {$mode objfpc}{$H+}
 
@@ -13,7 +13,7 @@ uses
 {$R *.res}
 
 begin
-  RequireDerivedFormResource:=True;
+  RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);
   Application.Run;

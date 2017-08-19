@@ -1,0 +1,12 @@
+object Form1: TForm1
+  Left = 717
+  Height = 244
+  Top = 241
+  Width = 357
+  Caption = 'Form1'
+  OnClick = ComponentClick
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyPress = ComponentKeyPress
+  LCLVersion = '1.8.0.4'
+end

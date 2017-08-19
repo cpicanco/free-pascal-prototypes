@@ -1,11 +1,11 @@
-unit form_main;
+unit Forms.Main;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, SerialTimer;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, StdCtrls, SerialTimer;
 
 type
 
@@ -21,6 +21,7 @@ type
   TStimuliList = array of TStimulus;
 
   TForm1 = class(TForm)
+    Label1: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private

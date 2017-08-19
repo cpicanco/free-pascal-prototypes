@@ -7,7 +7,7 @@ object FormMain: TFormMain
   ClientHeight = 363
   ClientWidth = 589
   OnCreate = FormCreate
-  LCLVersion = '1.8.0.3'
+  LCLVersion = '1.8.0.4'
   object Panel1: TPanel
     Left = 72
     Height = 249

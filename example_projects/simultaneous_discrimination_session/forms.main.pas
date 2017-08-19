@@ -7,7 +7,7 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit form_main;
+unit Forms.Main;
 
 {$mode objfpc}{$H+}
 
@@ -15,8 +15,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, Spin, simple_session
-  ;
+  ExtCtrls, Spin,
+  Sessions;
 
 type
 
@@ -55,7 +55,6 @@ implementation
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   WindowState:=wsFullScreen;
-  FReportFilename := ExtractFilePath(Application.ExeName) + 'Data_000.txt';
   FSession := TSession.Create(Self);
   FSession.OnStop:=@SessionStop;
 end;
@@ -75,7 +74,7 @@ procedure TFormMain.ButtonStartSessionClick(Sender: TObject);
 begin
   Panel1.Hide;
   ShowMessage(RSSessionStart);
-  FSession.Start(Self, FReportFilename, SpinEditMatrix.Value);
+  FSession.Start(Self, Application.ExeName, SpinEditMatrix.Value);
 end;
 
 procedure TFormMain.ButtonCloseClick(Sender: TObject);
