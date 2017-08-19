@@ -7,7 +7,7 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit stimulus_key;
+unit Controls.StimulusKey;
 
 {$mode objfpc}{$H+}
 
@@ -17,9 +17,9 @@ uses SysUtils, Classes, Graphics, Controls;
 
 type
 
-  { TKey }
+  { TStimulusKey }
 
-  TKey = class(TGraphicControl)
+  TStimulusKey = class(TGraphicControl)
   private
     FBitmap: TBitmap;
     procedure KeyMouseDown(Sender: TObject; Button: TMouseButton;
@@ -43,7 +43,7 @@ type
 
 implementation
 
-constructor TKey.Create(AOwner: TComponent);
+constructor TStimulusKey.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   OnMouseDown := @KeyMouseDown;
@@ -68,14 +68,14 @@ begin
     end;
 end;
 
-destructor TKey.Destroy;
+destructor TStimulusKey.Destroy;
 begin
   if Assigned(FBitmap) then
     FBitmap.Free;
   inherited Destroy;
 end;
 
-procedure TKey.Paint;
+procedure TStimulusKey.Paint;
 begin
   Canvas.StretchDraw(ClientRect, FBitmap);
   if Caption <> '' then
@@ -85,7 +85,7 @@ begin
       Caption);
 end;
 
-procedure TKey.LoadFromFile(AFilename: string);
+procedure TStimulusKey.LoadFromFile(AFilename: string);
   procedure Load_PNG;
   var
     LPNG : TPortableNetworkGraphic;
@@ -123,7 +123,7 @@ begin
     end;
 end;
 
-procedure TKey.KeyMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TStimulusKey.KeyMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   if Assigned(OnResponse) then
@@ -133,13 +133,13 @@ begin
     if Assigned(OnConsequence) then OnConsequence(Self);
 end;
 
-procedure TKey.SetOnConsequence(AValue: TNotifyEvent);
+procedure TStimulusKey.SetOnConsequence(AValue: TNotifyEvent);
 begin
   if FOnConsequence=AValue then Exit;
   FOnConsequence:=AValue;
 end;
 
-procedure TKey.SetOnResponse(AValue: TMouseEvent);
+procedure TStimulusKey.SetOnResponse(AValue: TMouseEvent);
 begin
   if FOnResponse=AValue then Exit;
   FOnResponse:=AValue;

@@ -7,7 +7,7 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit stimuli_grid;
+unit Controls.StimulusGrid;
 
 {$mode objfpc}{$H+}
 
@@ -15,12 +15,12 @@ interface
 
 uses
   Classes, SysUtils, Controls
-  , stimulus_key
+  , Controls.StimulusKey
   ;
 
 type
 
-  TKeyMatrix = array of array of TKey;
+  TKeyMatrix = array of array of TStimulusKey;
 
   { TKeyGrid }
 
@@ -92,7 +92,7 @@ begin
   for j := Low(FKeys) to High(FKeys) do
     for i:= Low(FKeys[j]) to High(FKeys[j]) do
       begin
-        FKeys[j][i] := TKey.Create(Self);
+        FKeys[j][i] := TStimulusKey.Create(Self);
         FKeys[j][i].Caption := IntToStr(LCount);
         FKeys[j][i].Parent := Self;
         FKeys[j][i].OnResponse := FOnKeyResponse;
@@ -163,7 +163,7 @@ procedure TKeyGrid.RandomizeKeyPositions;
 var
   i, j, ri, rj,
   AColCount, ARowCount : integer;
-  LKey : TKey;
+  LKey : TStimulusKey;
 begin
   AColCount := Length(FKeys);
   for j := Low(FKeys) to High(FKeys) do

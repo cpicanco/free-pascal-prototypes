@@ -13,14 +13,12 @@ object Form1: TForm1
     Height = 146
     Top = 88
     Width = 206
-    Caption = 'PanelOperandum'
+    Caption = 'Operandum, click me!'
     TabOrder = 0
     OnClick = PanelOperandumClick
   end
   object ScheduleVR: TSchedule
     ScheduleName = VR
-    OnConsequence = ConsequenceEvent
-    OnResponse = ResponseEvent
     Parameter1 = 5
     Parameter2 = 3
     left = 120

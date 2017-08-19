@@ -8,7 +8,7 @@
       <Version Value="11"/>
       <SearchPaths>
         <IncludeFiles Value="examples/how_to_design_time;examples/how_to_run_time"/>
-        <OtherUnitFiles Value="schedules_component;examples/how_to_run_time"/>
+        <OtherUnitFiles Value="schedules_component;examples/how_to_run_time;examples/how_to_design_time"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -31,47 +31,47 @@
         <HasRegisterProc Value="True"/>
       </Item3>
       <Item4>
-        <Filename Value="examples/how_to_design_time/form_main.lfm"/>
-        <Type Value="LFM"/>
-      </Item4>
-      <Item5>
-        <Filename Value="examples/how_to_design_time/test_schedules.lpr"/>
-        <Type Value="Text"/>
-      </Item5>
-      <Item6>
         <Filename Value="schedules.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="schedules"/>
-      </Item6>
-      <Item7>
-        <Filename Value="examples/how_to_design_time/form_main.pas"/>
-        <AddToUsesPkgSection Value="False"/>
-        <UnitName Value="form_main"/>
-      </Item7>
-      <Item8>
-        <Filename Value="examples/how_to_design_time/test_schedules.lpi"/>
-        <Type Value="Text"/>
-      </Item8>
-      <Item9>
+      </Item4>
+      <Item5>
         <Filename Value="schedules.classes.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="Schedules.Classes"/>
+      </Item5>
+      <Item6>
+        <Filename Value="examples/how_to_run_time/forms.main.lfm"/>
+        <Type Value="LFM"/>
+      </Item6>
+      <Item7>
+        <Filename Value="examples/how_to_run_time/forms.main.pas"/>
+        <UnitName Value="Forms.Main"/>
+      </Item7>
+      <Item8>
+        <Filename Value="examples/how_to_run_time/schedules_run_time.lpi"/>
+        <Type Value="Text"/>
+      </Item8>
+      <Item9>
+        <Filename Value="examples/how_to_run_time/schedules_run_time.lpr"/>
+        <Type Value="Text"/>
       </Item9>
       <Item10>
-        <Filename Value="examples/how_to_run_time/form_main.pas"/>
-        <UnitName Value="form_main"/>
+        <Filename Value="examples/how_to_design_time/schedules_design_time.lpr"/>
+        <Type Value="Text"/>
       </Item10>
       <Item11>
-        <Filename Value="examples/how_to_run_time/test_schedules.lpi"/>
+        <Filename Value="examples/how_to_design_time/schedules_design_time.lpi"/>
         <Type Value="Text"/>
       </Item11>
       <Item12>
-        <Filename Value="examples/how_to_run_time/form_main.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="examples/how_to_design_time/forms.main.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="Forms.Main"/>
       </Item12>
       <Item13>
-        <Filename Value="examples/how_to_run_time/test_schedules.lpr"/>
-        <Type Value="Text"/>
+        <Filename Value="examples/how_to_design_time/forms.main.lfm"/>
+        <Type Value="LFM"/>
       </Item13>
     </Files>
     <RequiredPkgs Count="3">

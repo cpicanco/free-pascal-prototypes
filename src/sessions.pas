@@ -7,7 +7,7 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit simple_session;
+unit Sessions;
 
 {$mode objfpc}{$H+}
 
@@ -15,8 +15,8 @@ interface
 
 uses
   Classes, SysUtils, Controls, ExtCtrls
-  , stimuli_grid
-  , report_custom
+  , Controls.StimulusGrid
+  , TabDelimitedReport.Custom
   ;
 
 type
@@ -27,7 +27,7 @@ type
   private
     FInterTrialInterval : TTimer;
     FCounters : TCounters;
-    FReport : TReport;
+    FReport : TCustomReport;
     FGrid : TKeyGrid;
     procedure InterTrialIntervalStartTimer(Sender: TObject);
     procedure InterTrialIntervalStopTimer(Sender: TObject);
@@ -65,7 +65,7 @@ resourcestring
 
 implementation
 
-uses Dialogs, stimulus_key;
+uses Dialogs, Controls.StimulusKey;
 
 { TSession }
 
@@ -86,17 +86,17 @@ end;
 
 procedure TSession.KeyGridConsequence(Sender: TObject);
 begin
-  case TKey(Sender).Caption of
+  case TStimulusKey(Sender).Caption of
     '1', '2' :
       begin
         ShowMessage(RSHitMessage);
-        FReport.WriteLine(RSHit);
+        FReport.WriteRow(RSHit);
         Inc(FCounters.Hits);
       end
     else
       begin
         ShowMessage(RSMissMessage);
-        FReport.WriteLine(RSMiss);
+        FReport.WriteRow(RSMiss);
         Inc(FCounters.Misses);
       end;
   end;
@@ -106,11 +106,11 @@ end;
 procedure TSession.KeyGridResponse(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if Sender is TKey then
-    FReport.WriteLine(TKey(Sender).Caption, X, Y);
+  if Sender is TStimulusKey then
+    FReport.WriteRow(TStimulusKey(Sender).Caption, X, Y);
 
   if Sender is TKeyGrid then
-    FReport.WriteLine(RSBackgroundEvent, X, Y);
+    FReport.WriteRow(RSBackgroundEvent, X, Y);
 end;
 
 procedure TSession.Stop;
@@ -128,7 +128,7 @@ begin
       Inc(FCounters.Trials);
       FGrid.RandomizeKeyPositions;
       FGrid.Show;
-      FReport.WriteLine(FGrid.AsString);
+      FReport.WriteRow(FGrid.AsString);
       if Assigned(OnEndTrial) then OnEndTrial(Self);
     end
   else
@@ -163,7 +163,7 @@ constructor TSession.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FGrid := TKeyGrid.Create(Self);
-  FReport := TReport.Create(Self);
+  FReport := TCustomReport.Create(Self);
   FCounters := FReport.Counters;
   FInterTrialInterval := TTimer.Create(Self);
   FInterTrialInterval.Enabled := False;
@@ -186,7 +186,7 @@ begin
   FReport.Filename := AFilename;
   FReport.StartTime:=GetTickCount64;
   FReport.WriteHeader;
-  FReport.WriteLine(FGrid.AsString);
+  FReport.WriteRow(FGrid.AsString);
 end;
 
 end.

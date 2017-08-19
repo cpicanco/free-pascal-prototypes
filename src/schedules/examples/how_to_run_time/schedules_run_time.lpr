@@ -1,4 +1,4 @@
-program test_schedules;
+program schedules_run_time;
 
 {$mode objfpc}{$H+}
 
@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, runtimetypeinfocontrols, form_main
+  Forms, Forms.Main
   { you can add units after this };
 
 {$R *.res}

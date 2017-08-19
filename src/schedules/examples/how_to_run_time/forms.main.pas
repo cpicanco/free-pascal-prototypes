@@ -1,11 +1,11 @@
-unit form_main;
+unit Forms.Main;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, RTTICtrls, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, Schedules;
 
 type
@@ -13,8 +13,8 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ScheduleVR : TSchedule;
     PanelOperandum: TPanel;
-    ScheduleVR: TSchedule;
     procedure FormCreate(Sender: TObject);
     procedure PanelOperandumClick(Sender: TObject);
     procedure ConsequenceEvent(Sender: TObject);
@@ -32,6 +32,9 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  ScheduleVR := TSchedule.Create(Self,VR,5,2);
+  ScheduleVR.OnConsequence:=@ConsequenceEvent;
+  ScheduleVR.OnResponse:=@ResponseEvent;
   ScheduleVR.Start;
 end;
 

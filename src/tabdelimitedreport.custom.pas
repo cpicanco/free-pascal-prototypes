@@ -7,7 +7,7 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 }
-unit report_custom;   // unit name. See: http://wiki.freepascal.org/Unit
+unit TabDelimitedReport.Custom;   // unit name. See: http://wiki.freepascal.org/Unit
 
 {$mode objfpc}        // compiler directive. See: https://www.freepascal.org/docs-html/prog/progse75.html#x290-306000D.4
 {$H+}                 // compiler directive. See: http://wiki.freepascal.org/String
@@ -15,7 +15,7 @@ unit report_custom;   // unit name. See: http://wiki.freepascal.org/Unit
 interface             // public to units that specify this unit in their uses clause
 
 uses                  // other units used by this unit
-  Classes, SysUtils, report_abstract;
+  Classes, SysUtils, TabDelimitedReport;
 
 type                  // Lets define some custom types
 
@@ -30,16 +30,16 @@ type                  // Lets define some custom types
   {
     TReport - a class type inherited from TTabDelimitedReport
   }
-  TReport = class sealed (TTabDelimitedReport)
+  TCustomReport = class sealed (TTabDelimitedReport)
   private             // private fields
     FCounters: TCounters;
     FStartTime: LongWord;
   public              // explicit public methods
-    constructor Create(AOwner : TComponent); override;
+    constructor Create(AOwner : TComponent); reintroduce;
     destructor Destroy; override;
-    procedure WriteFooter; override;
-    procedure WriteHeader; override;
-    procedure WriteLine(AEvent : string; AX: integer = -1; AY : integer = -1); overload;
+    procedure WriteFooter;
+    procedure WriteHeader;
+    procedure WriteRow(AEvent : string; AX: integer = -1; AY : integer = -1); overload;
     property Counters : TCounters read FCounters write FCounters;
     property StartTime : LongWord read FStartTime write FStartTime;
   end;
@@ -61,38 +61,39 @@ resourcestring
   // footer
   RSHits = 'Acertos:';
   RSMisses = 'Erros:';
+  RSBegin = 'Início:';
+  RSEnd = 'Final:';
 
 implementation
 
 { TReport }
 
-constructor TReport.Create(AOwner: TComponent);
+constructor TCustomReport.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);
   FCounters := TCounters.Create;
 end;
 
-destructor TReport.Destroy;
+destructor TCustomReport.Destroy;
 begin
   FCounters.Free;
   inherited Destroy;
 end;
 
-procedure TReport.WriteFooter;
+procedure TCustomReport.WriteFooter;
 begin
-  WriteLine([RSEnd, TimeToStr(Now)]);
-  WriteLine([RSHits, IntToStr(FCounters.Hits)]);
-  WriteLine([RSMisses, IntToStr(FCounters.Misses)]);
+  WriteRow([RSEnd, TimeToStr(Now)]);
+  WriteRow([RSHits, IntToStr(FCounters.Hits)]);
+  WriteRow([RSMisses, IntToStr(FCounters.Misses)]);
   CloseFile;
 end;
 
-procedure TReport.WriteHeader;
+procedure TCustomReport.WriteHeader;
 begin
-  WriteLine([RSBegin, TimeToStr(Now)]);
-  WriteLine([RSTime, RSTrial, RSEvent, RSMouseX, RSMouseY]);
+  WriteRow([RSBegin, TimeToStr(Now)]);
+  WriteRow([RSTime, RSTrial, RSEvent, RSMouseX, RSMouseY]);
 end;
 
-procedure TReport.WriteLine(AEvent: string; AX: integer; AY: integer);
+procedure TCustomReport.WriteRow(AEvent: string; AX: integer; AY: integer);
 var
   LX : string = 'NA';
   LY : string = 'NA';
@@ -103,7 +104,7 @@ begin
   if AY = -1 then { do nothing } else WriteStr(LX, AY);
   WriteStr(LTime, GetTickCount64-FStartTime);
   WriteStr(LTrial, FCounters.Trials+1);
-  WriteLine([LTime, LTrial, AEvent, LX, LY]);
+  WriteRow([LTime, LTrial, AEvent, LX, LY]);
 end;
 
 end.
