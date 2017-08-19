@@ -1,6 +1,12 @@
+*/backup/*
+*/*/backup/*
+*/lib/*
+*/*/lib/*
+lib/*
 backup/*
 lib/*
 *.zip
 *.ico
 *.res
 *.lps
+*/schedules_design_time
