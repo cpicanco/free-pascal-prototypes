@@ -1,0 +1,16 @@
+object Form1: TForm1
+  Left = 372
+  Height = 322
+  Top = 167
+  Width = 411
+  Caption = 'Form1'
+  OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
+  LCLVersion = '1.8.0.4'
+  object TheForce: TTimer
+    Interval = 100
+    OnTimer = TheForceTimer
+    left = 336
+    top = 24
+  end
+end
