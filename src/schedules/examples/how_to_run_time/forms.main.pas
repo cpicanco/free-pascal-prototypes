@@ -32,7 +32,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  ScheduleVR := TSchedule.Create(Self,VR,5,2);
+  ScheduleVR := TSchedule.Create(Self,VI,5000,2000);
   ScheduleVR.OnConsequence:=@ConsequenceEvent;
   ScheduleVR.OnResponse:=@ResponseEvent;
   ScheduleVR.Start;

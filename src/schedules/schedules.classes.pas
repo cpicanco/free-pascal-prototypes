@@ -221,8 +221,7 @@ end;
 
 procedure TIntervalSchedule.Reset;
 begin
-  if FIntervalVariation > 0 then
-    UpdateInterval(FBaseTimeInterval, FIntervalVariation);
+  UpdateInterval(FBaseTimeInterval, FIntervalVariation);
   FFlagClock:= False;
   StartClock;
 end;

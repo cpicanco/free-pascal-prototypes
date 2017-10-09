@@ -118,7 +118,7 @@ end;
 
 procedure TSchedules.StopClock;
 begin
-  FTimer.Enabled := True;
+  FTimer.Enabled := False;
 end;
 
 function TSchedules.GetStartMethod: TClockStartMethod;
