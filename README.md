@@ -56,6 +56,10 @@ S  -> R
 S' -> R'
 ```  
 
+### control_a_moving_ball
+
+Ilustrates how to move a ball on screen using TShape and a TTimer. Also ilustrates how to control the direction of the ball using keyboard and mouse. Also ilustrates simple colision algorithm, the ball will
+
 ### pilot_project
 
 Ilustrates how to track mouse and keyboard events with TForm and TGraphicalControl classes. Ilustrates how to make a cummulative record with thoses events. Uses units like: TabDelimitedReport, Timestamps and ExtCtrl.Stimulus.
